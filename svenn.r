@@ -1,5 +1,3 @@
-library ("matlab")
-
 svenn <- function (f, x0, delta)
 {
   x <- x0
