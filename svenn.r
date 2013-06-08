@@ -1,3 +1,7 @@
+# f - function : R -> R
+# x0 - start point
+# delta - start step value
+
 svenn <- function (f, x0, delta)
 {
   x <- x0
