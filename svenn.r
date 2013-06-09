@@ -9,6 +9,7 @@ svenn <- function (f, x0, delta)
   x2 <- x
   x3 <- x + delta
   k <- 1
+  step <- delta
   while (TRUE)
   {
     f1 <- f(x1)
