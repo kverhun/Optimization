@@ -2,7 +2,7 @@
 # x0 - start point
 # delta - start step value
 
-svenn <- function (f, x0, delta)
+svenn <- function (f, x0, delta = 0.1)
 {
   x <- x0
   x1 <- x - delta

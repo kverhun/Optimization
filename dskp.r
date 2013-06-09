@@ -6,7 +6,7 @@
 DSKP <- function (f, x0, eps1, eps2)
 {
   # 1) dsk
-  int <- svenn(f, x0, deltaeval(f,x0,eps1,eps2))
+  int <- svenn(f, x0)
   x1 <- int[1]
   x3 <- int[2]
   x2 <- (x1 + x3)/2
@@ -108,5 +108,5 @@ dxeval <- function (f, x0, eps1, eps2)
 
 deltaeval <- function(f, x0, eps1, eps2)
 {
-  return (eps1/2)
+  return (10*eps2)
 }
