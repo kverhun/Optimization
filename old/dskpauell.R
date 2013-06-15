@@ -1,6 +1,6 @@
 DSKPauell <- function (f, x0, eps1 = 0.001, eps2 = eps1, delta = 50*eps1)
 {
-  interval <- svenn (f, x0, 1)
+  interval <- svenn (f, x0, 1e-3)
   
   # 1) DSK
   lng <- interval[2] - interval[1]
@@ -28,11 +28,11 @@ DSKPauell <- function (f, x0, eps1 = 0.001, eps2 = eps1, delta = 50*eps1)
   }
   xcur <- x2 + (delta*(f1-f3))/2/(f1 - 2*f2 + f3)
   
-  cat ("DSK result: ", xcur, "\n")
+  #cat ("DSK result: ", xcur, "\n")
   
   # 2) Pauell
   n <- 1
-  cat ("Pauell started...\n")
+  #cat ("Pauell started...\n")
   xmin <- xcur
   while (TRUE)
   {

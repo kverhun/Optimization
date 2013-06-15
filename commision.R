@@ -8,14 +8,28 @@ cut <- function(f,x)
 }
 
 
-comfunc <- function (f,g,R)
+comfunc <- function (x, f,g = c(),h = c(),R)
 {
-  cfunc <- f
-  count <- length(g)
-  for (i in 1:count)
+  count1 <- length(g)
+  count2 <- length(h)
+
+  result <- f(x)
+  
+  if (count1 > 0)
+  for (i in 1:count1)
   {
-    g[i][[1]] <- function(x) return ((g[i][[1]](x)) * R)
-    comfunc <- comfunc + g[i][[1]]
+    result <- result + R * (cut(g[[i]], x))^2
   }
-  return (comfunc)
+  
+  if (count2 > 0)
+  for (i in 1:count2)
+  {
+      result <- result + R * (h[[i]](x))^2
+  }  
+  result
+}
+
+cfunc <- function (f,g = c(), h = c(), R)
+{
+  return (function(x) {comfunc(x,f,g,h,R)})
 }

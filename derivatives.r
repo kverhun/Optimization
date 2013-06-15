@@ -30,11 +30,16 @@ der <- function (f, x, i = 1, eps = 0.01, type = "c")
 }
 
 
-grad <- function (f,x,eps=0.01,type="c")
+grad <- function (f,x,eps=rep(1e-3, length(x)),scheme="c")
 {
   dim <- length(x)
+  if (length(eps) == 1)
+  {
+    epsval <- eps
+    eps <- rep (epsval,dim)
+  }   
   gradv <- 1:dim
   for (i in 1:dim)
-    gradv[i] <- der(f,x,i,eps,type)
+    gradv[i] <- der(f,x,i,eps[i],scheme)
   return (gradv)
 }

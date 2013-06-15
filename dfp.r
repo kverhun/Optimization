@@ -12,7 +12,7 @@ DFP <- function (f, x0, eps1 = 0.01, eps2 = eps1, eps3 = eps1, eps4 = eps1)
   dim <- length(x0)
   x <- x0
   fv <- f(x0)
-  gradv <- grad(f,x,eps4)
+  gradv <- grad(f,x)
   #gradv <- gradv/norm(gradv)
   A <- eye(dim)
   
@@ -63,8 +63,10 @@ DFP <- function (f, x0, eps1 = 0.01, eps2 = eps1, eps3 = eps1, eps4 = eps1)
       {
         crit2 <- TRUE
         for (i in 1:dim)
+        {
           if ((dtNext$x[i] - dt$x[i])/dt$x[i] > eps2)
             crit2 <- FALSE
+        }
       }
       else
       {
@@ -116,18 +118,19 @@ DFPStep <- function (func,dt, eps, epsder,type="golden")
   tempfunc <- Vectorize(tempfunc)
   if (type == "golden")
   {
-    lambdaopt <- golden(tempfunc,svenn(tempfunc,0,0.01),eps)
+    lambdaopt <- golden(tempfunc,svenn(tempfunc,0,min(0.01, norm(x)/norm(gradv))),eps)
   }
   if (type == "dskp")
   {
-    lambdaopt <- DSKP(tempfunc,0,eps1=eps,eps2 = eps)
+    lambdaopt <- DSKPauell(tempfunc,0,eps1=eps,eps2 = eps)
   }
   #end lambda
   
   #restarting
+  cat("\nlambda: ", lambdaopt, "\n")
   if (dt$rallowed == TRUE)
   {
-    if (lambdaopt < eps/1e5)
+    if (abs(lambdaopt) < 1e-12)
     {
       cat("\nrestarted\n")
       return (list(restart = TRUE))
@@ -138,7 +141,7 @@ DFPStep <- function (func,dt, eps, epsder,type="golden")
   #result data evaluating
   xNext <- x - lambdaopt * (A %*% gradv)
   fvNext <- func(xNext)
-  gradvNext <- grad(func,xNext,epsder)
+  gradvNext <- grad(func,xNext)
   #gradvNext <- gradv/norm(gradvNext)
   ANext <- A + (x %*% t(x))/((t(x) %*% gradv)[1,1]) - (A %*% gradv %*% t(gradv) %*% A)/((t(gradv) %*% A %*% gradv)[1,1])  
   #result data evaluating end

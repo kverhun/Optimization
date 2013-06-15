@@ -68,13 +68,14 @@ DFPold <- function (f, gradf, x0, eps1, eps2)
 }
 
 
-DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden")
+DFPNum <- function (f, x0, eps1, eps2, eps3, eps4, nstep = 0, deep = 1,mode = "golden")
 {
-  clear(c(-1.5,1.5),c(-1.5,1.5))
-  cont(roz,c(-1.5,1.5),c(-1.5,1.5),0.05, 15)
+  #clear(c(-1.5,1.5),c(-1.5,1.5))
+  #cont(roz,c(-1.5,1.5),c(-1.5,1.5),0.05, 15)
   if (deep > 1)
-    cat ("Restarted")
-  
+    cat ("Restarted\n")
+  else
+    nstep <- 0
   #eps3 - for 1-d search
   cat ("DFP started...\n\n")
   
@@ -83,13 +84,13 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
   x <- x0
   fv <- f(x)
   
-  gradfv <- grad(f,x0,1e-12)
+  gradfv <- grad(f,x0,eps4)
   
   
   while (TRUE)
   {
     nstep <- nstep + 1
-    cat ("Step number ", nstep, "\n")
+    cat ("\n\nStep number ", nstep, "\n")
     cat ("x: ", x, "\n")
     cat ("f(x): ", fv, "\n")
     cat ("gradf(x): ", gradfv, "\n")
@@ -109,18 +110,19 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
     if (mode == "golden")
       lambdaopt <- golden(tempfunc, svenn(tempfunc, 0, 0.001), eps3)
     if (mode == "dskp")
-      lambdaopt <- DSKP(tempfunc,0,eps3,eps3)
+      lambdaopt <- DSKPauell(tempfunc,0,eps3,eps3)
     
     
     cat ("vector: ", A %*% gradfv, "\n")
-    cat ("lambda: ", lambdaopt, "\n\n\n")
-    
+    cat ("lambda: ", lambdaopt, "\n")
+
+
     xNext <- x - lambdaopt * (A %*% gradfv)
     fvNext <- f(xNext)
     #gradfvNext <- c(1,dim)
     #for (i in 1:dim)
      # gradfvNext[i] <- der(f, xNext, i)
-    gradfvNext <- grad(f,xNext, 1e-10)
+    gradfvNext <- grad(f,xNext, eps4)
     
     dx <- xNext - x
     dfv <- fvNext - fv
@@ -131,10 +133,11 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
       if (norm (xNext - x) < eps2)
         return (x)
     }
-    if (lambdaopt < eps3)
+    if (abs(lambdaopt) < eps2/100)
     {
       return (DFPNum(f, xNext, eps1, eps2, eps3, nstep, deep + 1))
     }
+    
       
   
     
@@ -144,17 +147,21 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
     crit1 <- FALSE
     crit2 <- FALSE
     
-    if (fv < eps1/100)
-    {
-      if (dfv < eps1)
-        crit1 <- TRUE
-    }
-    else
-    {
-      if (abs(dfv/fv) < eps1)
-        crit1 <- TRUE
-    }
-    if (norm(xNext) < eps2/100)
+    #if (abs(fvNext) < eps1)
+    #{
+    #  if (abs(dfv) < eps1)
+    #    crit1 <- TRUE
+    #}
+    #else
+    #{
+    #  if (abs(dfv/fv) < eps1)
+    #    crit1 <- TRUE
+    #}
+    
+    if (abs (dfv) < eps1)
+      crit1 <- TRUE
+    
+    if (norm(xNext) < eps2)
     {
       if (norm(dx) < eps2)  
         crit2 <- TRUE
@@ -164,6 +171,14 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
       if (norm(dx)/norm(x) < eps2)
         crit2 <- TRUE
     }
+    cat ("abs(fvNext):\t\t", abs(fvNext), "abs(dfv):\t", abs(dfv), "\t\tabs(dfv/fv): ",abs(dfv/fv),"\n")
+    cat ("norm(dx):\t\t", norm(dx), "\t\tnorm(dx)/norm(x): ",norm(dx)/norm(x),"\n")
+    
+    #if (norm (gradfvNext) < eps1)
+    #{
+    #  cat ("fmin: ", fvNext)
+    #  return (xNext)
+    #}
     
     if (crit1 && crit2)
     {
@@ -181,7 +196,7 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, nstep = 0, deep = 1,mode = "golden"
   }
 }
 
-clear <- function(x=c(-1,1),y=c(-1,1))
+clear <- function(x=c(-1.5,1.5),y=c(-1.5,1.5))
 {
   plot (x[1]:x[2], y[1]:y[2], type="n")
 }
