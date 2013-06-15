@@ -68,7 +68,7 @@ DFPold <- function (f, gradf, x0, eps1, eps2)
 }
 
 
-DFPNum <- function (f, x0, eps1, eps2, eps3, eps4, nstep = 0, deep = 1,mode = "golden")
+DFPNum <- function (f, x0, eps1, eps2, eps3, eps4, coef = 1e-1,nstep = 0, deep = 1,mode = "golden")
 {
   #clear(c(-1.5,1.5),c(-1.5,1.5))
   #cont(roz,c(-1.5,1.5),c(-1.5,1.5),0.05, 15)
@@ -108,10 +108,11 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, eps4, nstep = 0, deep = 1,mode = "g
     #interval <- golden (tempfunc, svenn(tempfunc, 0, 1), eps3)
     #lambdaopt <- (interval[1] + interval[2])/2
     if (mode == "golden")
-      lambdaopt <- golden(tempfunc, svenn(tempfunc, 0, 0.001), eps3)
+      lambdaopt <- golden(tempfunc, svenn(tempfunc, 0, coef*norm(x)/norm(gradfv)), eps3)
     if (mode == "dskp")
-      lambdaopt <- DSKPauell(tempfunc,0,eps3,eps3)
+      lambdaopt <- DSKPNew(tempfunc,svenn(tempfunc,0,coef * norm(x)/norm(gradfv)),eps3,eps3)
     
+    #min(c(0.6,norm(x)/norm(gradfv)))
     
     cat ("vector: ", A %*% gradfv, "\n")
     cat ("lambda: ", lambdaopt, "\n")
@@ -195,6 +196,16 @@ DFPNum <- function (f, x0, eps1, eps2, eps3, eps4, nstep = 0, deep = 1,mode = "g
     A <- ANext
   }
 }
+
+norm <- function (x)
+{
+  dim <- length(x)
+  res <- 0
+  for (i in 1:dim)
+    res <- res + x[i]^2
+  sqrt(res)
+}
+
 
 clear <- function(x=c(-1.5,1.5),y=c(-1.5,1.5))
 {
